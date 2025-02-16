@@ -24,7 +24,7 @@ func main() {
 
 	// List of domains to crawl
 	domains := []string{
-		"www.ibm.com", "www.samsung.com", "www.flipkart.com", "www.apple.com/in",
+		"www.ibm.com", "www.samsung.com", "www.flipkart.com", "www.apple.com",
 	}
 
 	for _, domain := range domains {

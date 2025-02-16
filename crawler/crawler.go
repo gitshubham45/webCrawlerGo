@@ -16,7 +16,7 @@ const queueName = "crawl_queue"
 
 // Crawl recursively discovers product pages within the same domain
 func Crawl(targetURL string, domain string, productURLs *[]string, depth int, visited *VisitedTracker) {
-	if depth > 5 { // Prevent infinite loops and excessive depth
+	if depth > 3 { // Prevent infinite loops and excessive depth
 		log.Printf("Max depth reached for URL: %s", targetURL)
 		return
 	}
