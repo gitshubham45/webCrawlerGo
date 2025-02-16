@@ -1,61 +1,80 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/gitshubham45/webCrawlerGo/crawler"
 	"github.com/gitshubham45/webCrawlerGo/db"
-	"github.com/gitshubham45/webCrawlerGo/utils"
+	"github.com/gitshubham45/webCrawlerGo/queue"
 )
 
-func main() {
-	visited := crawler.NewVisitedTracker()
-	domains := []string{
-		"ibm.com", "samsung.com", "flipkart.com",
-		"amazon.com", "microsoft.com",
-		"apple.com",
-	}
+const queueName = "crawl_queue"
 
+func main() {
+	// Initialize database connection
 	db.InitDB()
 	defer db.DisconnectDB()
 
-	var wg sync.WaitGroup
+	// Initialize visited tracker
+	visited := crawler.NewVisitedTracker()
+
+	queue.ClearQueue(queueName)
+
+	// List of domains to crawl
+	domains := []string{
+		"www.ibm.com", "www.samsung.com", "www.flipkart.com", "www.apple.com/in",
+	}
 
 	for _, domain := range domains {
+		startURL := "https://" + domain
+		if err := queue.AddTask(queueName, startURL); err != nil {
+			log.Printf("Failed to add domain %s to queue", domain)
+		}
+	}
+
+	// Start worker pool
+	numWorkers := 10 
+	var wg sync.WaitGroup
+
+	for i := 0; i < numWorkers; i++ {
+
 		wg.Add(1)
-		go func(domain string) {
+		go func(workerID int) {
 			defer wg.Done()
-			var productURLs []string
-			startURL := "https://" + domain
-
-			log.Printf("Starting crawl for domain: %s", domain)
-
-			// Check robots.txt before starting the crawl
-			if !utils.CheckRobotsTxt(domain, "MyCrawler", startURL) {
-				log.Printf("Crawling blocked by robots.txt for domain: %s", domain)
-				return
-			}
-
-			// Start crawling
-			crawler.Crawl(startURL, domain, &productURLs, 0, visited)
-			db.SaveResults(domain, productURLs)
-
-			log.Printf("Finished crawl for domain: %s", domain)
-		}(domain)
+			log.Printf("Worker %d started", workerID)
+			worker(visited)
+		}(i)
 	}
 
 	wg.Wait()
+	log.Println("All tasks processed")
+}
 
-	// Retrieve and print results from MongoDB
-	results, err := db.GetResults()
-	if err != nil {
-		log.Fatalf("Error retrieving results from MongoDB: %v", err)
+// worker processes tasks from the queue
+func worker(visited *crawler.VisitedTracker) {
+	for {
+		url, err := queue.GetTask(queueName)
+		if err != nil || url == "" {
+			break
+		}
+	
+		domain := extractDomain(url)
+
+		// Crawl the URL
+		var productURLs []string
+		crawler.Crawl(url, domain, &productURLs, 0, visited)
+
+		// Save results to MongoDB
+		db.SaveResults(domain, productURLs)
 	}
-	fmt.Println("Discovered Product URLs:")
-	for _, result := range results {
-		fmt.Printf("Domain: %s, URLs: %v\n", result.Domain, result.URLs)
+}
+
+func extractDomain(url string) string {
+	parts := strings.Split(url, "/")
+	if len(parts) > 2 {
+		return parts[2]
 	}
-	fmt.Println("Discovered Product URLs:", results)
+	return ""
 }
