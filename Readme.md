@@ -64,3 +64,13 @@ Before running the project, ensure you have the following installed:
     docker run -d --name my_mongo -p 27017:27017 mongo
 
     go run main.go
+
+2 **Run the project using docker**:
+    ```bash
+    docker-compose up -d --build
+
+3 **Check results**:
+    ```bash
+    docker exec -it web-crawler bash
+
+    cd results

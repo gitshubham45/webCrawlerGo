@@ -16,13 +16,13 @@ var redisClient *redis.Client
 
 func init() {
 	var err error
-	redisUrl := os.Getenv("REDIS_URL")
-	if redisUrl == "" {
-		redisUrl = "localhost:6379"
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		redisAddr = "localhost:6379"
 	}
 	for i := 0; i < 5; i++ { // Retry up to 5 times
 		redisClient = redis.NewClient(&redis.Options{
-			Addr:     redisUrl,
+			Addr:     redisAddr,
 			Password: "",
 			DB:       0,
 		})

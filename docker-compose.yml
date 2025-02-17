@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6378:6378"
+    networks:
+      - redis-network  # Separate network for Redis
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27016:27016"
+    networks:
+      - mongo-network  # Separate network for MongoDB
+
+  crawler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web-crawler
+    depends_on:
+      - redis
+      - mongodb
+    environment:
+      REDIS_ADDR: redis:6379
+      MONGO_URI: mongodb://root:example@mongodb:27017
+    networks:
+      - crawler-network  
+      - redis-network  
+      - mongo-network  
+    restart: on-failure
+
+networks:
+  redis-network:
+    driver: bridge
+
+  mongo-network:
+    driver: bridge
+
+  crawler-network:
+    driver: bridge
