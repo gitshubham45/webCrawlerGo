@@ -29,8 +29,8 @@ services:
       - redis
       - mongodb
     environment:
-      REDIS_ADDR: redis:6379
-      MONGO_URI: mongodb://root:example@mongodb:27017
+      REDIS_ADDR: redis:6378
+      MONGO_URI: mongodb://root:example@mongodb:27016
     networks:
       - crawler-network  
       - redis-network  
