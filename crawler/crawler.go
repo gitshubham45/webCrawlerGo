@@ -30,6 +30,11 @@ func Crawl(targetURL string, domain string, productURLs *[]string, depth int, bf
 	log.Printf("Visiting URL: %s", targetURL)
 	bf.Add(targetURL)
 
+	if !utils.CheckRobotsTxt(domain, "MyCrawler", targetURL) {
+		log.Printf("Blocked by robots.txt: %s", targetURL)
+		return
+	}
+
 	resp, err := makeRequest(targetURL)
 	if err != nil {
 		log.Printf("Error fetching %s after retries: %v", targetURL, err)
@@ -60,11 +65,6 @@ func Crawl(targetURL string, domain string, productURLs *[]string, depth int, bf
 
 		if !strings.Contains(finalURL, domain) {
 			log.Printf("Skipping external URL: %s", finalURL)
-			return
-		}
-
-		if !utils.CheckRobotsTxt(domain, "MyCrawler", finalURL) {
-			log.Printf("Blocked by robots.txt: %s", finalURL)
 			return
 		}
 

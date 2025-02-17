@@ -41,20 +41,3 @@ func SaveResults(domain string, urls []string) {
 	log.Printf("Upserted results for domain %s in MongoDB", domain)
 }
 
-// GetResults retrieves all results from MongoDB
-func GetResults() ([]Result, error) {
-	collection := MongoClient.Database("crawler").Collection("results")
-
-	// Query all documents
-	cursor, err := collection.Find(context.Background(), bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	var results []Result
-	if err := cursor.All(context.Background(), &results); err != nil {
-		return nil, err
-	}
-	return results, nil
-}
