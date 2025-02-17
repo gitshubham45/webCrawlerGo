@@ -1,7 +1,5 @@
 # Web Crawler with MongoDB and Redis
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 This project implements a distributed web crawler that uses **Redis** for managing a Bloom filter to track visited URLs and **MongoDB** for storing crawled results. The crawler is designed to efficiently crawl websites, extract product URLs, and store the results in a structured format.
 
 ---
@@ -12,6 +10,7 @@ This project implements a distributed web crawler that uses **Redis** for managi
 2. [Features](#features)
 3. [Prerequisites](#prerequisites)
 4. [Installation](#installation)
+5. [Usage](#usage)
 
 ---
 
@@ -44,6 +43,7 @@ Key components:
 Before running the project, ensure you have the following installed:
 
 - **Go**: Install Go.
+- **Docker**: Install Docker.
 
 ---
 
@@ -52,13 +52,15 @@ Before running the project, ensure you have the following installed:
 1. **Clone the Repository**:
    ```bash
    git clone https://github.com/yourusername/web-crawler.git
-   
+
    cd web-crawler
 
 ## Usage
+
+1. **Run the project**:
     ```bash
-   docker run -d -p 6379:6379 --name my-redis redis:latest
+    docker run -d -p 6379:6379 --name my-redis redis:latest
 
-   docker run -d --name my_mongo -p 27017:27017 mongo
+    docker run -d --name my_mongo -p 27017:27017 mongo
 
-   go run main.go
+    go run main.go
