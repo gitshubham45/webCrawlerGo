@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gitshubham45/webCrawlerGo/bloom"
 	"github.com/gitshubham45/webCrawlerGo/queue"
 	"github.com/gitshubham45/webCrawlerGo/utils"
 )
@@ -15,19 +16,19 @@ import (
 const queueName = "crawl_queue"
 
 // Crawl recursively discovers product pages within the same domain
-func Crawl(targetURL string, domain string, productURLs *[]string, depth int, visited *VisitedTracker) {
+func Crawl(targetURL string, domain string, productURLs *[]string, depth int, bf *bloom.BloomFilter) {
 	if depth > 3 { // Prevent infinite loops and excessive depth
 		log.Printf("Max depth reached for URL: %s", targetURL)
 		return
 	}
 
 	// Check if URL has already been visited
-	if visited.IsVisited(targetURL) {
+	if bf.Test(targetURL) {
 		log.Printf("Skipping already visited URL: %s", targetURL)
 		return
 	}
 	log.Printf("Visiting URL: %s", targetURL)
-	visited.MarkVisited(targetURL)
+	bf.Add(targetURL)
 
 	resp, err := makeRequest(targetURL)
 	if err != nil {
@@ -73,11 +74,11 @@ func Crawl(targetURL string, domain string, productURLs *[]string, depth int, vi
 		}
 		*productURLs = append(*productURLs, finalURL)
 
-		if !visited.IsVisited(finalURL) {
+		if !bf.Test(finalURL) {
 			if err := queue.AddTask(queueName, finalURL); err != nil {
 				log.Printf("Failed to add URL %s to queue", finalURL)
 			}
-			go Crawl(finalURL, domain, productURLs, depth+1, visited)
+			go Crawl(finalURL, domain, productURLs, depth+1, bf)
 		}
 	})
 
