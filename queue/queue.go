@@ -3,6 +3,7 @@ package queue
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -12,10 +13,14 @@ var redisClient *redis.Client
 
 func init() {
 	// Initialize Redis client
+	redisUrl := os.Getenv("REDIS_URL")
+	if redisUrl == "" {
+		redisUrl = "localhost:6379"
+	}
 	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", 
-		Password: "",               
-		DB:       0,             
+		Addr:     redisUrl,
+		Password: "",
+		DB:       0,
 	})
 }
 

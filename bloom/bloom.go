@@ -5,6 +5,7 @@ import (
 	"hash/fnv"
 	"log"
 	"math"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -15,9 +16,13 @@ var redisClient *redis.Client
 
 func init() {
 	var err error
+	redisUrl := os.Getenv("REDIS_URL")
+	if redisUrl == "" {
+		redisUrl = "localhost:6379"
+	}
 	for i := 0; i < 5; i++ { // Retry up to 5 times
 		redisClient = redis.NewClient(&redis.Options{
-			Addr:     "localhost:6379", 
+			Addr:     redisUrl,
 			Password: "",
 			DB:       0,
 		})
@@ -27,7 +32,7 @@ func init() {
 			break
 		}
 		log.Printf("Failed to connect to Redis (attempt %d): %v", i+1, err)
-		time.Sleep(2 * time.Second) 
+		time.Sleep(2 * time.Second)
 	}
 
 	if err != nil {
