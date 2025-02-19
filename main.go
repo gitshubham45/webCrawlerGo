@@ -4,6 +4,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gitshubham45/webCrawlerGo/bloom"
 	"github.com/gitshubham45/webCrawlerGo/crawler"
@@ -18,6 +19,9 @@ func main() {
 	// Initialize database connection
 	db.InitDB()
 	defer db.DisconnectDB()
+
+	startTime := time.Now()
+	log.Println("Ccrawling started at:", startTime)
 
 	// Initialize Bloom filter
 	bf := bloom.NewBloomFilter("visited_urls", 1000000, 0.01) // Expected 1M items, 1% false positive rate
@@ -53,7 +57,12 @@ func main() {
 
 	// Wait for all workers to finish
 	wg.Wait()
+	endTime := time.Now()
+	duration := endTime.Sub(startTime)
+
 	log.Println("All tasks processed")
+	log.Println("Crawling finished at:", endTime)
+	log.Printf("Total execution time: %v\n", duration)
 }
 
 // worker processes tasks from the queue
