@@ -27,6 +27,7 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/joho/godotenv v1.5.1
 	go.mongodb.org/mongo-driver v1.17.2
 	golang.org/x/net v0.35.0 // indirect
 )

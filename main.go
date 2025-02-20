@@ -11,12 +11,18 @@ import (
 	"github.com/gitshubham45/webCrawlerGo/db"
 	"github.com/gitshubham45/webCrawlerGo/queue"
 	"github.com/gitshubham45/webCrawlerGo/utils"
+	"github.com/joho/godotenv"
 )
 
 const queueName = "crawl_queue"
 
 func main() {
 	// Initialize database connection
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Println("error loading envs")
+	}
+
 	db.InitDB()
 	defer db.DisconnectDB()
 
